@@ -37,7 +37,7 @@ export function renderImages(images) {
         </li>`;
     }).join('');
 
-    gallery.innerHTML += markup; // Додаємо нові зображення до існуючих
+    gallery.innerHTML += markup; 
 
     const lightbox = new SimpleLightbox('.image-gallery a', {
         captions: true,

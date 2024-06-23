@@ -2,8 +2,6 @@
 
 import { getImages } from './js/pixabay-api';
 import { renderImages } from './js/render-functions';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
@@ -12,11 +10,9 @@ const searchInput = document.querySelector('.image-search-input');
 const gallery = document.querySelector('.image-gallery');
 const loader = document.querySelector('.loader');
 const loadMoreBtn = document.querySelector('.load-more-button');
-const loadMoreLoader = document.querySelector('.new-loader'); // Змінено селектор на .new-loader
 
-loader.style.display = 'none'; 
-loadMoreBtn.style.display = 'none'; // Приховати кнопку при завантаженні сторінки
-loadMoreLoader.style.display = 'none'; // Приховати лоадер "Load more" при завантаженні сторінки
+
+loadMoreBtn.style.display = 'none'; 
 
 let request;
 let page = 1;
@@ -39,28 +35,26 @@ form.addEventListener('submit', (event) => {
             backgroundColor: 'red',
             messageColor: 'white',
         });
+        loadMoreBtn.style.display = 'none';
         return;
     }
 
-    page = 1; // Скидання сторінки до початкового значення
-    loadMoreBtn.style.display = 'none'; // Приховати кнопку перед новим пошуком
+    page = 1; 
+    loadMoreBtn.style.display = 'none'; 
 
     fetchImages();
 });
 
 loadMoreBtn.addEventListener('click', () => {
     page += 1;
-    loadMoreLoader.style.display = 'block'; // Показати лоадер "Load more" при кліку на кнопку
+    showLoader();
     fetchImages();
 });
 
 function fetchImages() {
-    loader.style.display = 'block';
-    loadMoreLoader.style.display = 'none'; // Приховати лоадер "Load more" під час завантаження зображень
-
     getImages(request, page, per_page)
     .then(data => {
-        loader.style.display = 'none'; 
+        hideLoader(); 
         if (data.hits.length === 0 && page === 1) {
             iziToast.error({
                 message: 'Sorry, there are no images matching your search query. Please try again!',
@@ -70,10 +64,10 @@ function fetchImages() {
                 backgroundColor: 'blue',
                 messageColor: 'white',
             });
+            loadMoreBtn.style.display = 'none';
         } else {
             renderImages(data.hits);
 
-            // Отримання висоти однієї карточки галереї
             if (data.hits.length > 0) {
                 const firstCard = gallery.querySelector('.images-list-item');
                 if (firstCard) {
@@ -85,16 +79,16 @@ function fetchImages() {
             const totalPages = Math.ceil(totalHits / per_page);
 
             if (data.hits.length > 0) {
-                loadMoreBtn.style.display = 'block'; // Показати кнопку, якщо є зображення
+                loadMoreBtn.style.display = 'block'; 
             } else {
-                loadMoreBtn.style.display = 'none'; // Приховати кнопку, якщо зображення закінчилися
+                loadMoreBtn.style.display = 'none'; 
             }
             
-            // Прокручування сторінки на висоту карточки галереї
+            
             if (cardHeight > 0) {
                 window.scrollBy({
-                    top: cardHeight * 2, // Прокрутка на дві висоти карточки
-                    behavior: 'smooth' // Плавна анімація прокрутки
+                    top: cardHeight * 2, 
+                    behavior: 'smooth' 
                 });
             }
 
@@ -113,11 +107,26 @@ function fetchImages() {
     })
     .catch(error => {
         console.error(error);
-        loader.style.display = 'none';
-        loadMoreLoader.style.display = 'none'; // Приховати лоадер "Load more" в разі помилки
+        hideLoader(); 
+        iziToast.error({
+            message: 'An error occurred while fetching images. Please try again later.',
+            position: 'topRight',
+            titleColor: '#fff',
+            titleSize: '16px',
+            backgroundColor: 'red',
+            messageColor: 'white',
+        });
     });
 }
 
 function clearGallery() {
     gallery.innerHTML = '';
+}
+
+function showLoader() {
+    loader.style.display = 'block';
+}
+
+function hideLoader() {
+    loader.style.display = 'none';
 }

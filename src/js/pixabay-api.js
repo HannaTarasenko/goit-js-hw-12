@@ -19,7 +19,7 @@ export async function getImages(request, page = 1, per_page = 15) {
 
     try {
         const res = await axios.get(url);
-        return res.data; // повернути дані
+        return res.data; 
     } catch (error) {
         console.error('Error fetching images:', error);
         throw new Error(`HTTP error! Status: ${error.response.status}`);
