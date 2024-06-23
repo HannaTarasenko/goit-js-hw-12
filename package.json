@@ -15,6 +15,7 @@
   "author": "Hanna Tarasenko <ganna.tarasenko.1998@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.2",
     "izitoast": "^1.4.0",
     "modern-normalize": "^2.0.0",
     "simplelightbox": "^2.14.3",

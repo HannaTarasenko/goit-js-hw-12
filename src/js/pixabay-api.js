@@ -1,6 +1,7 @@
-
 'use strict';
-export function getImages(request) {
+import axios from "axios";
+
+export async function getImages(request, page = 1, per_page = 15) {
     const BASE_URL = 'https://pixabay.com';
     const END_POINT = '/api/';
     const params = new URLSearchParams({
@@ -9,19 +10,18 @@ export function getImages(request) {
         image_type: 'photo',
         orientation: 'horizontal',
         safesearch: 'true',
-        page: 1,
-        per_page: 30,
+        page: page,
+        per_page: per_page,
     });
 
     const url = `${BASE_URL}${END_POINT}?${params}`;
     console.log(url);
 
-    return fetch(url)
-    .then(res => {
-        if (res.ok) {
-            return res.json();
-        } else {
-            throw new Error(res.status);
-                  }
-});
+    try {
+        const res = await axios.get(url);
+        return res.data; // повернути дані
+    } catch (error) {
+        console.error('Error fetching images:', error);
+        throw new Error(`HTTP error! Status: ${error.response.status}`);
+    }
 }
