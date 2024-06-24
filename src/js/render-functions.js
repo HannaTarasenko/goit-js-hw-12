@@ -3,6 +3,18 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const gallery = document.querySelector('.image-gallery');
+const lightbox = new SimpleLightbox('.image-gallery a', {
+    captions: true,
+    captionSelector: 'img',
+    captionType: 'attr',
+    captionsData: 'alt',
+    captionPosition: 'bottom',
+    captionDelay: 250,
+    animationSpeed: 300,
+    widthRatio: 1,
+    heightRatio: 0.95,
+    disableRightClick: true,
+});
 
 export function renderImages(images) {
     if (!images || !images.length) {
@@ -37,19 +49,7 @@ export function renderImages(images) {
         </li>`;
     }).join('');
 
-    gallery.innerHTML += markup; 
+    gallery.insertAdjacentHTML('beforeend', markup)
 
-    const lightbox = new SimpleLightbox('.image-gallery a', {
-        captions: true,
-        captionSelector: 'img',
-        captionType: 'attr',
-        captionsData: 'alt',
-        captionPosition: 'bottom',
-        captionDelay: 250,
-        animationSpeed: 300,
-        widthRatio: 1,
-        heightRatio: 0.95,
-        disableRightClick: true,
-    });
     lightbox.refresh();
 }

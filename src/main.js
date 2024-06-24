@@ -11,7 +11,6 @@ const gallery = document.querySelector('.image-gallery');
 const loader = document.querySelector('.loader');
 const loadMoreBtn = document.querySelector('.load-more-button');
 
-
 loadMoreBtn.style.display = 'none'; 
 
 let request;
@@ -51,11 +50,45 @@ loadMoreBtn.addEventListener('click', () => {
     fetchImages();
 });
 
-function fetchImages() {
-    getImages(request, page, per_page)
-    .then(data => {
-        hideLoader(); 
-        if (data.hits.length === 0 && page === 1) {
+async function fetchImages() {
+    try {
+        const data = await getImages(request, page, per_page);
+        hideLoader();
+
+        const totalHits = data.totalHits;
+        const totalPages = Math.ceil(totalHits / per_page);
+
+        if (page < totalPages) {
+            loadMoreBtn.style.display = 'block';
+        } else {
+            loadMoreBtn.style.display = 'none';
+
+            iziToast.info({
+                position: "topRight",
+                message: "We're sorry, but you've reached the end of search results.",
+                titleColor: '#fff',
+                titleSize: '16px',
+                backgroundColor: 'red',
+                messageColor: 'white',
+            });
+        }
+
+        
+        if (data.hits.length > 0) {
+            renderImages(data.hits);
+
+            if (page > 1) {
+                const firstCard = gallery.querySelector('.images-list-item');
+                if (firstCard) {
+                    const cardHeight = firstCard.getBoundingClientRect().height;
+                    window.scrollBy({
+                        top: cardHeight * 2,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        } else {
+            
             iziToast.error({
                 message: 'Sorry, there are no images matching your search query. Please try again!',
                 position: 'topRight',
@@ -64,50 +97,11 @@ function fetchImages() {
                 backgroundColor: 'blue',
                 messageColor: 'white',
             });
-            loadMoreBtn.style.display = 'none';
-        } else {
-            renderImages(data.hits);
-
-            if (data.hits.length > 0) {
-                const firstCard = gallery.querySelector('.images-list-item');
-                if (firstCard) {
-                    cardHeight = firstCard.getBoundingClientRect().height;
-                }
-            }
-
-            const totalHits = data.totalHits;
-            const totalPages = Math.ceil(totalHits / per_page);
-
-            if (data.hits.length > 0) {
-                loadMoreBtn.style.display = 'block'; 
-            } else {
-                loadMoreBtn.style.display = 'none'; 
-            }
-            
-            
-            if (cardHeight > 0) {
-                window.scrollBy({
-                    top: cardHeight * 2, 
-                    behavior: 'smooth' 
-                });
-            }
-
-            if (page > totalPages) {
-                return iziToast.error({
-                    position: "topRight",
-                    message: "We're sorry, but you've reached the end of search results.",
-                    titleColor: '#fff',
-                    titleSize: '16px',
-                    backgroundColor: 'red',
-                    messageColor: 'white',
-                });
-            }
         }
-        
-    })
-    .catch(error => {
+    } catch (error) {
         console.error(error);
-        hideLoader(); 
+        hideLoader();
+
         iziToast.error({
             message: 'An error occurred while fetching images. Please try again later.',
             position: 'topRight',
@@ -116,7 +110,7 @@ function fetchImages() {
             backgroundColor: 'red',
             messageColor: 'white',
         });
-    });
+    }
 }
 
 function clearGallery() {
